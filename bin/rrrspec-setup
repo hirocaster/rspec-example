@@ -1,7 +1,14 @@
-#!/bin/sh
+#!/usr/bin/env ruby
 
-set -e
+`bundle install`
 
-bundle install
-RAILS_ENV=test ./bin/rake db:create
-RAILS_ENV=test ./bin/rake db:migrate
+ENV["RAILS_ENV"] = "test"
+
+num_slaves = ENV["NUM_SLAVES"].to_i || 1
+
+(0..num_slaves).each do |num|
+  ENV["SLAVE_NUMBER"] = num.to_s
+  `./bin/rake db:drop`
+  `./bin/rake db:create`
+  `./bin/rake db:migrate`
+end
